@@ -1,0 +1,51 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  android:
+    name: Build Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Android
+        run: ./gradlew assembleDebug
+        working-directory: android
+
+  ios:
+    name: Build iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install CocoaPods
+        run: pod install --project-directory=ios
+
+      - name: Build iOS
+        run: xcodebuild -workspace ios/MobileBankingApp.xcworkspace -scheme MobileBankingApp -sdk iphonesimulator -configuration Debug build
